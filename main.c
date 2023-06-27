@@ -9,7 +9,6 @@
 
 #include <xc.h>
 #include <pic16f877a.h>
-#include <stdio.h>
 #include "lcd.h"
 #include "keypad.h"
 
@@ -17,10 +16,8 @@
 
 
 void main(void) {
-    const unsigned char temperatures[5] = {10, 20, 30, 40 ,50};
+    const unsigned char* temperatures[] = {"10", "20", "30", "40" ,"50"};
     unsigned char n = 0;
-    unsigned char choose_temp = 0;
-    unsigned char choose_temp_str[] = "10";
     unsigned char key_pressed = 'n';
 
 
@@ -39,27 +36,24 @@ void main(void) {
             if (n > 4) {
                 n = 0;
             }
-            choose_temp = temperatures[n];
         }
         else if (key_pressed == 'D') {
             n--;
             if (n < 0) {
                 n = 0;
             }
-            choose_temp = temperatures[n];
         }
 
-        sprintf(choose_temp_str, "%d", choose_temp);
         set_cursor(2, 14);
-        write_string(choose_temp_str);
+        write_string(temperatures[n]);
         __delay_ms(100);
 
         if (key_pressed == 'E') {
             break;
         }   
-        else if (key_pressed == 'C'){
-            choose_temp = 0;
-        }
+        // else if (key_pressed == 'C'){
+            
+        // }
     }
     
     clear_lcd();
@@ -67,7 +61,7 @@ void main(void) {
     write_string("Temperatura");
     set_cursor(2, 1);
     write_string("escolhida: ");
-    write_string(choose_temp_str);
+    write_string(temperatures[n]);
     
     while (1);
 
