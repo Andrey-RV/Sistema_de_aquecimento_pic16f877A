@@ -5,28 +5,32 @@
 #define row2 PORTBbits.RB3
 
 
-void keypad_init(void){
+void keypad_init();
+unsigned char scan_keypad();
+
+
+void keypad_init(){
     OPTION_REGbits.nRBPU = 0;
     TRISB = 0b11110011;
 
     return;
 }
 
-unsigned char scan_keypad(void){
+unsigned char scan_keypad(){
 
     while (1){
         row1 = 0;
         row2 = 1;
 
         if (PORTBbits.RB4 == 0){
-            __delay_ms(100);
+            __delay_ms(200);
             if (PORTBbits.RB4 == 0){
                 return 'A';
         }
         }
 
         if (PORTBbits.RB5 == 0){
-            __delay_ms(100);
+            __delay_ms(200);
             if (PORTBbits.RB5 == 0){
                 return 'D';
         }
@@ -36,14 +40,14 @@ unsigned char scan_keypad(void){
         row2 = 0;
 
         if (PORTBbits.RB4 == 0){
-            __delay_ms(100);
+            __delay_ms(200);
             if (PORTBbits.RB4 == 0){
                 return 'E';
         }
         }
 
         if (PORTBbits.RB5 == 0){
-            __delay_ms(100);
+            __delay_ms(200);
             if (PORTBbits.RB5 == 0){
                 return 'C';
         }
