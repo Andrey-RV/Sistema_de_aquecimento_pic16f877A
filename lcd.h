@@ -6,6 +6,16 @@
 #define data_bus PORTD
 #define _XTAL_FREQ 8000000
 
+
+void write_on_lcd_bus(char a);
+void send_lcd_command(char a);
+void clear_lcd();
+void set_cursor(char a, char b);
+void initialize_lcd();
+void write_char(char a);
+void write_string(char *a);
+
+
 void write_on_lcd_bus(char a)
 {
     data_bus = a;
@@ -61,7 +71,7 @@ void write_char(char a)
     EN = 0;
 }
 
-void write_string(char *a)
+void write_string(char* a)
 {
     int i;
     for (i = 0; a[i] != '\0'; i++)
