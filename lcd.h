@@ -1,11 +1,10 @@
-#define EN PORTEbits.RE0
 #include <xc.h>
 #include <pic16f877a.h>
 
+#define EN PORTEbits.RE0
 #define RS PORTEbits.RE1
 #define data_bus PORTD
 #define _XTAL_FREQ 8000000
-
 
 void write_on_lcd_bus(char a);
 void send_lcd_command(char a);
@@ -26,7 +25,7 @@ void send_lcd_command(char a)
     RS = 0;
     write_on_lcd_bus(a);
     EN = 1;
-    __delay_ms(4);
+    __delay_ms(10);
     EN = 0;
 }
 
@@ -53,13 +52,15 @@ void initialize_lcd()
     ADCON1 = 0x06;
 
     send_lcd_command(0x38);     // Set 2 lines and 5x7 matrix command
-    __delay_ms(5);
+    __delay_ms(50);
     send_lcd_command(0x0E);     // Display on, cursor blinking command
-    __delay_ms(5);
+    __delay_ms(50);
+    send_lcd_command(0x02);     // Return home command
+    __delay_ms(50);
     send_lcd_command(0x01);     // Clear display command  
-    __delay_ms(5);
+    __delay_ms(50);
     send_lcd_command(0x06);     // Increment cursor command
-    __delay_ms(5);
+    __delay_ms(50);
 }
 
 void write_char(char a)
@@ -67,7 +68,7 @@ void write_char(char a)
     RS = 1;
     write_on_lcd_bus(a);
     EN = 1;
-    __delay_us(40);
+    __delay_us(10);
     EN = 0;
 }
 
