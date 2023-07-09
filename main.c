@@ -9,19 +9,18 @@
 
 #include <xc.h>
 #include <pic16f877a.h>
-#include "lcd.h"
+#include "lcd4.h"
 #include "keypad.h"
 
 #define _XTAL_FREQ 8000000
 
+void get_aimed_temperature(void);
+void get_heating_time(void);
+void set_heating(char temperature);
+void set_timer(char time);
 
-void get_aimed_temperature();
-void get_heating_time();
-void set_heating(char* temperature);
-void set_timer(char* time);
 
-
-void main() {
+void main(void) {
     initialize_lcd();
     keypad_init();
     get_aimed_temperature();
@@ -33,10 +32,10 @@ void main() {
     return;
 }
 
-void get_aimed_temperature(){
-    const unsigned char* temperatures[] = {"10", "20", "30", "40" ,"50"};
+void get_aimed_temperature(void){
+    const char* temperatures[] = {"10", "20", "30", "40" ,"50"};
     char n = 0;
-    unsigned char key_pressed = 'n';
+    char key_pressed = 'n';
 
     write_string("Escolha a");
     set_cursor(2, 1);
@@ -47,7 +46,7 @@ void get_aimed_temperature(){
 
         switch (key_pressed){
             case 'A':
-                n = n == 4 ? 4 : n + 1;
+                n = n == 4 ? 4 : n + 1;         // Make sure the index doesn't go out of bounds
                 set_cursor(2, 14);
                 write_string(temperatures[n]);
                 break;
@@ -71,10 +70,10 @@ void get_aimed_temperature(){
     write_string(temperatures[n]);
 }
 
-void get_heating_time(){
-    const unsigned char* time_intervals[] = {"10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"};
+void get_heating_time(void){
+    const char* time_intervals[] = {"10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"};
     char n = 4;
-    unsigned char key_pressed = 'n';
+    char key_pressed = 'n';
 
     clear_lcd();
     set_cursor(1, 1);
@@ -89,7 +88,7 @@ void get_heating_time(){
 
         switch (key_pressed){
             case 'A':
-                n = n == 10 ? 10 : n + 1;
+                n = n == 10 ? 10 : n + 1;           // Make sure the index doesn't go out of bounds
                 set_cursor(2, 14);
                 write_string(time_intervals[n]);
                 break;
@@ -105,6 +104,7 @@ void get_heating_time(){
             break;
         }
     }
+    
     clear_lcd();
     set_cursor(1, 1);
     write_string("Tempo");
