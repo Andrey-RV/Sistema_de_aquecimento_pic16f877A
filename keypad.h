@@ -4,19 +4,18 @@
 #define row1 PORTBbits.RB2
 #define row2 PORTBbits.RB3
 
+void keypad_init(void);
+char scan_keypad(void);
 
-void keypad_init();
-unsigned char scan_keypad();
 
-
-void keypad_init(){
+void keypad_init(void){
     OPTION_REGbits.nRBPU = 0;
     TRISB = 0b11110011;
 
     return;
 }
 
-unsigned char scan_keypad(){
+char scan_keypad(void){
 
     while (1){
         row1 = 0;
