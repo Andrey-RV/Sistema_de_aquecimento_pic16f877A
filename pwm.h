@@ -1,14 +1,16 @@
 #include <xc.h>
 #include <pic16f877a.h>
 
-void pwm_setup(void);
+void turn_on_pwm(void);
 
 
-void pwm_setup(void){
-    TRISCbits.TRISC2 = 0; // RC2 as output
-    PR2 = 0b11111111; // Period register
-    CCPR1L = 0b00000000; // Duty cycle register
-    CCP1CONbits.CCP1M = 0b00001100; // PWM mode
-    T2CONbits.T2CKPS = 0b11; // Prescaler 1:16
-    T2CONbits.TMR2ON = 1; // Timer 2 on
+void turn_on_pwm(void) {
+    TRISCbits.TRISC1 = 0;
+    CCP2CONbits.CCP2M = 0b1100;     // PWM mode
+    CCPR2L = 0b00111110;            // PWM duty cycle = CCPR2L : CCP2X : CCP2Y
+    CCP2CONbits.CCP2X = 1;
+    CCP2CONbits.CCP2Y = 0;
+
+    PR2 = 124;                      // 1kHz PWM frequency (for a 8MHz Fosc) 
+    T2CON = 0b00000111;             // Timer 2 prescaler 1:16
 }
