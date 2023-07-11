@@ -7,10 +7,12 @@
 #pragma config WRT = OFF        
 #pragma config CP = OFF         
 
+#include <stdio.h>
 #include <xc.h>
 #include <pic16f877a.h>
 #include "lcd4.h"
 #include "keypad.h"
+#include "ad_converter.h"
 
 #define _XTAL_FREQ 8000000
 
@@ -21,13 +23,25 @@ void set_timer(char time);
 
 
 void main(void) {
+    char str_temperature[3];
+    unsigned int int_temperature = 0;
+
     initialize_lcd();
     keypad_init();
+    ad_init();
+    
     get_aimed_temperature();
     __delay_ms(2000);
     get_heating_time();
-    
-    while (1);
+
+    while (1){
+        __delay_ms(1000);
+        int_temperature = read_ad();
+        sprintf(str_temperature, "%d", int_temperature);
+        clear_lcd();
+        write_string(str_temperature);
+        write_string("C");
+    }
 
     return;
 }
