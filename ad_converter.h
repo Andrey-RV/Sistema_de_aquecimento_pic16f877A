@@ -18,7 +18,7 @@ unsigned int read_ad(void){
     unsigned int voltage = 0;
     unsigned int temperature = 0;
 
-    __delay_ms(1000);
+    __delay_ms(100);
     ADCON0bits.GO = 1;
     while(ADCON0bits.GO);
 
