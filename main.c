@@ -13,6 +13,7 @@
 #include "lcd4.h"
 #include "keypad.h"
 #include "ad_converter.h"
+#include "pwm.h"
 
 #define _XTAL_FREQ 8000000
 
@@ -29,6 +30,7 @@ void main(void) {
     initialize_lcd();
     keypad_init();
     ad_init();
+    turn_on_pwm();
     
     get_aimed_temperature();
     __delay_ms(2000);
