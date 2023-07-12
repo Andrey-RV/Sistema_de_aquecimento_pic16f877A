@@ -30,7 +30,8 @@ void main(void) {
     initialize_lcd();
     keypad_init();
     ad_init();
-    turn_on_pwm();
+    pwm_init();
+    change_pwm_duty_cycle(70);
     
     get_aimed_temperature();
     __delay_ms(2000);
