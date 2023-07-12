@@ -91,16 +91,6 @@ void set_cursor(char a, char b)
     }
 }
 
-void add_custom_char(const char* symbol, char address)
-{
-    int i;
-    send_lcd_command(0x40 | (address * 8));
-
-    for (i = 0; i < 8; i++) {
-        write_char(symbol[i]);
-    }
-}
-
 void write_char(char a)
 {
     char lower_nibble = a & 0x0F;
