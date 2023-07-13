@@ -14,7 +14,6 @@
 #include "keypad.h"
 #include "pwm.h"
 #include "ad_converter.h"
-#include "rtc.h"
 
 #define _XTAL_FREQ 8000000
 
@@ -28,7 +27,6 @@ void main(void) {
     char str_temperature[3];
     char seconds[3];
     unsigned int int_temperature = 0;
-    rtc real_time_clock;
 
     initialize_lcd();
     keypad_init();
@@ -39,24 +37,6 @@ void main(void) {
     get_aimed_temperature();
     __delay_ms(2000);
     get_heating_time();
-
-    // RTC_Init();
-    // real_time_clock.hour = 0x21;
-    // real_time_clock.min = 0x25;
-    // real_time_clock.sec = 0x00;
-    // real_time_clock.date = 0x12;
-    // real_time_clock.month = 0x07;
-    // real_time_clock.year = 0x23;
-    // real_time_clock.weekDay = 0x03;
-    // RTC_SetDateTime(&real_time_clock);
-
-    // while (1){
-    //     RTC_GetDateTime(&real_time_clock);
-    //     sprintf(seconds, "%d", real_time_clock.sec);
-    //     clear_lcd();
-    //     write_string(seconds);
-    //     __delay_ms(5000);
-    // }
 
     while (1){
         __delay_ms(1000);
