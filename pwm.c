@@ -14,29 +14,29 @@ void pwm_init(void) {
     T2CON = 0b00000101;              // Timer 2 prescaler 1:4
 }
 
-void change_pwm_duty_cycle(unsigned char new_percentage) {
-    switch (new_percentage){
-        case 0:
+void change_pwm_duty_cycle(unsigned int temperature) {
+    switch (temperature){
+        case 30:
             CCPR2L = 0b00000000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 10:
+        case 34:
             CCPR2L = 0b00010100;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 20:
+        case 38:
             CCPR2L = 0b00101000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 30:
+        case 42:
             CCPR2L = 0b00111100;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 40:
+        case 46:
             CCPR2L = 0b01010000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
@@ -46,27 +46,27 @@ void change_pwm_duty_cycle(unsigned char new_percentage) {
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 60:
+        case 54:
             CCPR2L = 0b01111000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 70:
+        case 58:
             CCPR2L = 0b10001100;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 80:
+        case 62:
             CCPR2L = 0b10100000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 90:
+        case 66:
             CCPR2L = 0b10110100;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
             break;
-        case 100:
+        case 70:
             CCPR2L = 0b11001000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
