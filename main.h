@@ -17,3 +17,4 @@ void display_heating_time(const unsigned char* time);
 void set_heating(const unsigned char* temperature);
 void set_timer(const unsigned char* time);
 void show_temp_and_time(void);
+void end_heating(void);
