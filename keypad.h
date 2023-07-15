@@ -4,4 +4,4 @@
 
 
 void keypad_init(void);
-unsigned char scan_keypad(void);
+char scan_keypad(void);

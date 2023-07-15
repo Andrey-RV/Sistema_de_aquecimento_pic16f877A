@@ -10,7 +10,7 @@ void keypad_init(void){
     return;
 }
 
-unsigned char scan_keypad(void){
+char scan_keypad(void){
 
     while (1){
         row1 = 0;
