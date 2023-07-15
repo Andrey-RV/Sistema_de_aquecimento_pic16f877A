@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <xc.h>
 #include <pic16f877a.h>
 #include "lcd4.h"
@@ -10,6 +11,9 @@
 
 
 long int timer_counter = 0;         // TMR1 is set to count up to 0.25s, so 4 interrupts are 1s
+unsigned char* chosen_temperature;
+bool cancel_heating = false;
+bool heating = false;
 
 
 void __interrupt() isr(void){
@@ -19,26 +23,58 @@ void __interrupt() isr(void){
 
         if (timer_counter % 4 == 0){
             show_temp_and_time();
-            if (timer_counter == 0){
-                PIE1bits.TMR1IE = 0;
-            }
+        }
+    }
+
+    if (INTCONbits.INTF){
+        INTCONbits.INTF = 0;
+        T1CONbits.TMR1ON = 0;
+        change_pwm_duty_cycle(0);
+        set_cursor(2, 9);
+        write_string("Parado!");
+
+        unsigned char key_pressed = scan_keypad();
+        switch (key_pressed){
+            case 'E':
+                T1CONbits.TMR1ON = 1;
+                set_heating(chosen_temperature);
+                break;
+            case 'C':
+                cancel_heating = true;
+                break;
+            default:
+                break;
         }
     }
 }
 
 void main(void) {
-    unsigned char* chosen_temperature;
     unsigned char* chosen_time;
-
     initial_setup();
-    chosen_temperature = get_aimed_temperature();
-    __delay_ms(1500);
-    chosen_time = get_heating_time();
-    __delay_ms(1500);
-    set_heating(chosen_temperature);
-    set_timer(chosen_time);
 
-    while (1);
+    while (true){
+        chosen_temperature = get_aimed_temperature();
+        chosen_time = get_heating_time();
+        set_heating(chosen_temperature);
+        set_timer(chosen_time);
+
+        /* 
+        TODO: FIXME: Though it shouldn't, pressing RB0 while selecting temperature or time is causing the program to freeze. Calling keypad_init() again fixes it, but it's not a good solution.
+        */
+
+        heating = true;
+        INTCONbits.INTE = 1;
+        INTCONbits.GIE = 1;
+
+        while (heating){
+            if (timer_counter == 0){
+                end_heating();
+            }
+            if (cancel_heating){
+                break;
+            }
+        }
+    }
 
     return;
 }
@@ -48,6 +84,7 @@ void initial_setup(void){
     keypad_init();
     ad_init();
     pwm_init();
+    OPTION_REGbits.INTEDG = 0;      // Interrupt on falling edge of RB0/INT pin
 }
 
 unsigned char* get_aimed_temperature(void){
@@ -55,6 +92,7 @@ unsigned char* get_aimed_temperature(void){
     unsigned char n = 0;
     unsigned char key_pressed = 'n';
 
+    clear_lcd();
     write_string("Escolha a");
     set_cursor(2, 1);
     write_string("temperatura: 10 ");
@@ -81,6 +119,7 @@ unsigned char* get_aimed_temperature(void){
         }
     }
     display_aimed_temperature(temperatures[n]);
+    __delay_ms(1500);
     return temperatures[n];
 }
 
@@ -126,6 +165,7 @@ unsigned char* get_heating_time(void){
         }
     }
     display_heating_time(time_intervals[n]);
+    __delay_ms(1500);
     return time_intervals[n];
 }
 
@@ -182,7 +222,6 @@ void set_timer(const unsigned char* time){
     PIR1bits.TMR1IF = 0;
     PIE1bits.TMR1IE = 1;
     INTCONbits.PEIE = 1;
-    INTCONbits.GIE = 1;
 }
 
 void show_temp_and_time(void){
@@ -205,4 +244,16 @@ void show_temp_and_time(void){
     }
     write_string(str_current_time);
     write_string("s");
+}
+
+void end_heating(void){
+    heating = false;
+    PIE1bits.TMR1IE = 0;
+    INTCONbits.INTE = 0;
+    change_pwm_duty_cycle(0);
+    clear_lcd();
+    write_string("Aquecimento");
+    set_cursor(2, 1);
+    write_string("concluido!");
+    __delay_ms(2000);
 }
