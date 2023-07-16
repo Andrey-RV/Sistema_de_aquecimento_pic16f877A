@@ -67,6 +67,7 @@ void main(void) {
         INTCONbits.GIE = 1;
 
         while (is_heating){
+            adjust_pwm_duty_cycle(chosen_temperature);
             if (timer_counter == 0 || heating_was_cancelled){
                 end_heating();
             }
@@ -189,8 +190,14 @@ unsigned char* format_time(const unsigned char* seconds){
 }
 
 void set_heating(const unsigned char* temperature){
-    unsigned int int_temperature = strtol(temperature, NULL, 10);
-    change_pwm_duty_cycle(int_temperature);
+    unsigned int current_temperature = read_ad();
+
+    if (current_temperature < strtol(temperature, NULL, 10)){
+        change_pwm_duty_cycle(70);
+    }
+    else {
+        change_pwm_duty_cycle(0);
+    }
 }
 
 void set_timer(const unsigned char* time){
