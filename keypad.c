@@ -6,7 +6,6 @@
 void keypad_init(void){
     OPTION_REGbits.nRBPU = 0;
     TRISB = 0b11110011;
-
     return;
 }
 
