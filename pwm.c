@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "pwm.h"
 #include "ad_converter.h"
+#include "main.h"
 
 
 void pwm_init(void) {
@@ -16,69 +17,24 @@ void pwm_init(void) {
     T2CON = 0b00000101;              // Timer 2 prescaler 1:4
 }
 
-void adjust_pwm_duty_cycle(unsigned int temperature){
+void adjust_pwm_duty_cycle(char* temperature){
     unsigned int chosen_temperature = strtol(temperature, NULL, 10);
     unsigned int current_temperature = read_ad();
 
     if (current_temperature < chosen_temperature && CCPR2L < 255){
         CCPR2L++;
+        turn_off_fan();
     } else if (current_temperature > chosen_temperature && CCPR2L > 0){
         CCPR2L--;
+        turn_on_fan();
+    }
+    else{
+        turn_off_fan();
     }
 }
 
 void change_pwm_duty_cycle(unsigned int temperature) {
     switch (temperature){
-        // case 30:
-        //     CCPR2L = 0b00000000;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 34:
-        //     CCPR2L = 0b00010100;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 38:
-        //     CCPR2L = 0b00101000;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 42:
-        //     CCPR2L = 0b00111100;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 46:
-        //     CCPR2L = 0b01010000;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 50:
-        //     CCPR2L = 0b01100100;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 54:
-        //     CCPR2L = 0b01111000;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 58:
-        //     CCPR2L = 0b10001100;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 62:
-        //     CCPR2L = 0b10100000;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
-        // case 66:
-        //     CCPR2L = 0b10110100;
-        //     CCP2CONbits.CCP2X = 0;
-        //     CCP2CONbits.CCP2Y = 0;
-        //     break;
         case 70:
             CCPR2L = 0b11001000;
             CCP2CONbits.CCP2X = 0;
