@@ -1,5 +1,5 @@
 /* 
-TODO: FIXME: Though it shouldn't, pressing RB0 while selecting temperature or time is causing the program to freeze. Calling keypad_init() again fixes it, but it's not a good solution.
+! FIXME: Though it shouldn't, pressing RB0 while selecting temperature or time is causing the program to freeze. Calling keypad_init() again fixes it, but it's not a good solution.
 */
 
 #include <stdio.h>
@@ -25,25 +25,29 @@ void __interrupt() isr(void){
         PIR1bits.TMR1IF = 0;
         timer_counter--;
 
-        if (timer_counter % 4 == 0){
+        if (timer_counter % 4 == 0){    // timer_counter is decremente every 0.25s; when it's a multiple of 4, it means 1s has passed
             show_temp_and_time();
+        }
+        if (timer_counter == 0){
+            end_heating();
         }
     }
 
     if (INTCONbits.INTF){
         INTCONbits.INTF = 0;
         T1CONbits.TMR1ON = 0;
+
         change_pwm_duty_cycle(0);
         set_cursor(2, 8);
         write_string(" Parado! ");
 
-        unsigned char key_pressed = scan_keypad();
-        switch (key_pressed){
-            case 'E':
+        unsigned char button_pressed = scan_keypad();
+        switch (button_pressed){
+            case ENTER_BUTTON:
                 T1CONbits.TMR1ON = 1;
                 set_heating(chosen_temperature);
                 break;
-            case 'C':
+            case CANCEL_BUTTON:
                 heating_was_cancelled = true;
                 break;
             default:
@@ -68,7 +72,7 @@ void main(void) {
 
         while (is_heating){
             adjust_pwm_duty_cycle(chosen_temperature);
-            if (timer_counter == 0 || heating_was_cancelled){
+            if (heating_was_cancelled){
                 end_heating();
             }
         }
@@ -82,12 +86,14 @@ void initial_setup(void){
     ad_init();
     pwm_init();
     OPTION_REGbits.INTEDG = 0;      // Interrupt on falling edge of RB0/INT pin
+    TRISCbits.TRISC2 = 0;           // RC2 will be used as output for buzzer
+    PORTCbits.RC2 = 0;
 }
 
 unsigned char* get_aimed_temperature(void){
     const unsigned char* temperatures[] = {"30", "34", "38", "42", "46", "50", "54", "58", "62", "66", "70"};
     unsigned char n = 0;
-    unsigned char key_pressed = 'n';
+    unsigned char button_pressed = 'n';
 
     clear_lcd();
     write_string("Escolha a");
@@ -98,16 +104,16 @@ unsigned char* get_aimed_temperature(void){
     write_string("C");
 
     while (true) {
-        key_pressed = scan_keypad();
+        button_pressed = scan_keypad();
 
-        switch (key_pressed){
-            case 'A':
+        switch (button_pressed){
+            case INCREASE_BUTTON:
                 n = n == 10 ? 10 : n + 1;         // Make sure the index doesn't go out of bounds
                 set_cursor(2, 14);
                 write_string(temperatures[n]);
                 write_string("C");
                 break;
-            case 'D':
+            case DECREASE_BUTTON:
                 n = n == 0 ? 0 : n - 1;
                 set_cursor(2, 14);
                 write_string(temperatures[n]);
@@ -116,7 +122,7 @@ unsigned char* get_aimed_temperature(void){
             default:
                 break;
         }
-        if (key_pressed == 'E') {
+        if (button_pressed == ENTER_BUTTON) {
             break;
         }
     }
@@ -137,7 +143,7 @@ void display_aimed_temperature(const unsigned char* temperature){
 unsigned char* get_heating_time(void){
     const unsigned char* time_intervals[] = {"30", "60", "90", "120", "150", "180", "210", "240", "270", "300"};
     unsigned char n = 0;
-    unsigned char key_pressed = 'n';
+    unsigned char button_pressed = 'n';
     unsigned char* formatted_time = NULL;
 
     clear_lcd();
@@ -146,15 +152,15 @@ unsigned char* get_heating_time(void){
     write_string(format_time(time_intervals[0]));
 
     while (1) {
-        key_pressed = scan_keypad();
+        button_pressed = scan_keypad();
 
-        switch (key_pressed){
-            case 'A':
+        switch (button_pressed){
+            case INCREASE_BUTTON:
                 n = n == 9 ? 9 : n + 1;           // Make sure the index doesn't go out of bounds
                 set_cursor(2, 1);
                 write_string(format_time(time_intervals[n]));
                 break;
-            case 'D':
+            case DECREASE_BUTTON:
                 n = n == 0 ? 0 : n - 1;
                 set_cursor(2, 1);
                 write_string(format_time(time_intervals[n]));
@@ -162,7 +168,7 @@ unsigned char* get_heating_time(void){
             default:
                 break;
         }
-        if (key_pressed == 'E') {
+        if (button_pressed == ENTER_BUTTON) {
             break;
         }
     }
@@ -185,7 +191,7 @@ unsigned char* format_time(const unsigned char* seconds){
     unsigned int int_seconds = strtol(seconds, NULL, 10);
     unsigned int int_minutes = int_seconds / 60;
     unsigned int int_seconds_left = int_seconds % 60;
-    sprintf(formatted_time, "%d:%d", int_minutes, int_seconds_left);
+    sprintf(formatted_time, "%02d:%02d", int_minutes, int_seconds_left);
     return formatted_time;
 }
 
@@ -197,14 +203,14 @@ void set_heating(const unsigned char* temperature){
     }
     else {
         change_pwm_duty_cycle(0);
+        turn_on_fan();
     }
 }
 
 void set_timer(const unsigned char* time){
-    timer_counter = 4 * strtol(time, NULL, 10);
-
-    T1CON = 0b00110001;                 // 1:8 prescaler, 16-bit timer, internal clock, no sync
-    TMR1 = 62500;                       // 0.25s
+    T1CON = 0b00110001;                             // 1:8 prescaler, 16-bit timer, internal clock, no sync
+    TMR1 = 62500;                                   // Set to cause an interruption every 0.25s
+    timer_counter = 4 * strtol(time, NULL, 10);     // Multiplied by 4 to handle the interruption only every second.
 
     PIR1bits.TMR1IF = 0;
     PIE1bits.TMR1IE = 1;
@@ -222,13 +228,6 @@ void show_temp_and_time(void){
     clear_lcd();
     write_string(str_current_temp);
     set_cursor(2, 1);
-    if (timer_counter == 0){
-        clear_lcd();
-        write_string("Aquecimento");
-        set_cursor(2, 1);
-        write_string("terminado!");
-        return;
-    }
     write_string(format_time(str_current_time));
     set_cursor(2, 8);
     write_string("Aquecendo");
@@ -239,9 +238,19 @@ void end_heating(void){
     PIE1bits.TMR1IE = 0;
     INTCONbits.INTE = 0;
     change_pwm_duty_cycle(0);
+    turn_off_fan();
     clear_lcd();
     write_string("Aquecimento");
     set_cursor(2, 1);
     write_string("terminado!");
     __delay_ms(2000);
+    clear_lcd();
+}
+
+void turn_on_fan(void){
+    PORTCbits.RC2 = 1;
+}
+
+void turn_off_fan(void){
+    PORTCbits.RC2 = 0;
 }

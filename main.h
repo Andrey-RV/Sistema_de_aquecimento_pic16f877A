@@ -8,6 +8,11 @@
 #pragma config CP = OFF  
 
 #define _XTAL_FREQ 8000000
+#define INCREASE_BUTTON 'A'
+#define DECREASE_BUTTON 'D'
+#define ENTER_BUTTON 'E'
+#define CANCEL_BUTTON 'C'
+
 
 void initial_setup(void);
 unsigned char* get_aimed_temperature(void);
@@ -19,3 +24,5 @@ void set_heating(const unsigned char* temperature);
 void set_timer(const unsigned char* time);
 void show_temp_and_time(void);
 void end_heating(void);
+void turn_on_fan(void);
+void turn_off_fan(void);
