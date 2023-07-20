@@ -4,13 +4,12 @@
 
 
 void keypad_init(void){
-    OPTION_REGbits.nRBPU = 0;
+    OPTION_REGbits.nRBPU = 0;           // Internal pull-ups will be used to compare row-column and detect button press
     TRISB = 0b11110011;
     return;
 }
 
 unsigned char scan_keypad(void){
-
     while (1){
         row1 = 0;
         row2 = 1;
@@ -18,14 +17,14 @@ unsigned char scan_keypad(void){
         if (PORTBbits.RB4 == 0){
             __delay_ms(150);
             if (PORTBbits.RB4 == 0){
-                return 'A';
+                return INCREASE_BUTTON;
         }
         }
 
         if (PORTBbits.RB5 == 0){
             __delay_ms(150);
             if (PORTBbits.RB5 == 0){
-                return 'D';
+                return DECREASE_BUTTON;
         }
         }
 
@@ -35,14 +34,14 @@ unsigned char scan_keypad(void){
         if (PORTBbits.RB4 == 0){
             __delay_ms(150);
             if (PORTBbits.RB4 == 0){
-                return 'E';
+                return ENTER_BUTTON;
         }
         }
 
         if (PORTBbits.RB5 == 0){
             __delay_ms(150);
             if (PORTBbits.RB5 == 0){
-                return 'C';
+                return CANCEL_BUTTON;
         }
         }
     }
