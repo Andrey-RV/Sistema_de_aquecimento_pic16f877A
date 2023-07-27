@@ -4,7 +4,7 @@
 
 
 void keypad_init(void){
-    OPTION_REGbits.nRBPU = 0;           // Internal pull-ups will be used to compare row-column and detect button press
+    OPTION_REGbits.nRBPU = 0;           //* Pull-ups habilitados para comparação linha/coluna das teclas do teclado
     TRISB = 0b11110011;
     return;
 }

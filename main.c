@@ -1,5 +1,5 @@
 /* 
-! FIXME: Though it shouldn't, pressing RB0 while selecting temperature or time is causing the program to freeze. Calling keypad_init() again fixes it, but it's not a good solution.
+TODO: No Proteus, pressionar RB0 enquanto estiver na seleção de temperatura ou tempo trava o programa. Chamar keypad_init() aparentemente resolve o problema. Verificar se isso acontece no hardware real.
 */
 
 #include <stdio.h>
@@ -25,7 +25,7 @@ void __interrupt() isr(void){
         PIR1bits.TMR1IF = 0;
         timer_counter--;
 
-        if (timer_counter % 4 == 0){    // timer_counter is decremente every 0.25s; when it's a multiple of 4, it means 1s has passed
+        if (timer_counter % 4 == 0){    //* Mostrar a temperatura e o tempo restante apenas a cada segundo
             show_temp_and_time();
         }
         if (timer_counter == 0){
@@ -85,8 +85,8 @@ void initial_setup(void){
     keypad_init();
     ad_init();
     pwm_init();
-    OPTION_REGbits.INTEDG = 0;      // Interrupt on falling edge of RB0/INT pin
-    TRISCbits.TRISC2 = 0;           // RC2 will be used as output for buzzer
+    OPTION_REGbits.INTEDG = 0;      //* Interrupção na borda de descida
+    TRISCbits.TRISC2 = 0;           //* RC2 como saída para o buzzer
     PORTCbits.RC2 = 0;
 }
 
@@ -108,7 +108,7 @@ unsigned char* get_aimed_temperature(void){
 
         switch (button_pressed){
             case INCREASE_BUTTON:
-                n = n == 10 ? 10 : n + 1;         // Make sure the index doesn't go out of bounds
+                n = n == 10 ? 10 : n + 1;         //* Garantir que o índice não ultrapasse o tamanho do array
                 set_cursor(2, 14);
                 write_string(temperatures[n]);
                 write_string("C");
@@ -156,7 +156,7 @@ unsigned char* get_heating_time(void){
 
         switch (button_pressed){
             case INCREASE_BUTTON:
-                n = n == 9 ? 9 : n + 1;           // Make sure the index doesn't go out of bounds
+                n = n == 9 ? 9 : n + 1;           //* Garantir que o índice não ultrapasse o tamanho do array
                 set_cursor(2, 1);
                 write_string(format_time(time_intervals[n]));
                 break;
@@ -199,7 +199,7 @@ void set_heating(const unsigned char* temperature){
     unsigned int current_temperature = read_ad();
 
     if (current_temperature < strtol(temperature, NULL, 10)){
-        change_pwm_duty_cycle(70);
+        change_pwm_duty_cycle(100);
     }
     else {
         change_pwm_duty_cycle(0);
@@ -208,9 +208,9 @@ void set_heating(const unsigned char* temperature){
 }
 
 void set_timer(const unsigned char* time){
-    T1CON = 0b00110001;                             // 1:8 prescaler, 16-bit timer, internal clock, no sync
-    TMR1 = 62500;                                   // Set to cause an interruption every 0.25s
-    timer_counter = 4 * strtol(time, NULL, 10);     // Multiplied by 4 to handle the interruption only every second.
+    T1CON = 0b00110001;                             //* Prescaler de 8, modo timer, clock interno, sem sincronização
+    TMR1 = 62500;                                   //* Interrupção a cada 0.25s (clock de 8MHz)
+    timer_counter = 4 * strtol(time, NULL, 10);     //* Necessário multiplicar por 4 pois a interrupção ocorre a cada 0.25s
 
     PIR1bits.TMR1IF = 0;
     PIE1bits.TMR1IE = 1;

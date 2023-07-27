@@ -18,8 +18,8 @@ unsigned int read_ad(void){
     ADCON0bits.GO = 1;
     while(ADCON0bits.GO);
 
-    adc_result = (ADRESH << 8) + ADRESL;      // Left justified
-    voltage = adc_result * 5;                 // 5V reference  
-    temperature = voltage / 10;               // 10mV per degree Celsius
+    adc_result = (ADRESH << 8) + ADRESL;      //* Justificado à esquerda
+    voltage = adc_result * 5;                 //* Normalização para 5V 
+    temperature = voltage / 10;               //* 1°C ≈ 10mV
     return temperature;
 }
