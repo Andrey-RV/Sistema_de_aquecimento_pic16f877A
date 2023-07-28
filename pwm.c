@@ -26,6 +26,7 @@ void adjust_pwm_duty_cycle(char* temperature){
         turn_off_fan();
     } else if (current_temperature > chosen_temperature && CCPR2L > 0){
         CCPR2L--;
+        turn_on_fan();
     }
     else if (current_temperature == chosen_temperature){
         turn_off_fan();
