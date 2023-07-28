@@ -15,6 +15,8 @@
 
 
 void initial_setup(void);
+void handle_timer_interrupt(void);
+void handle_button_interrupt(void);
 unsigned char* get_aimed_temperature(void);
 void display_aimed_temperature(const unsigned char* temperature);
 unsigned char* get_heating_time(void);
