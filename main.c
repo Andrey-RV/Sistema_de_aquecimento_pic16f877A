@@ -18,41 +18,21 @@ unsigned int timer_counter = 0;
 unsigned char* chosen_temperature = NULL;
 bool heating_was_cancelled = false;
 bool is_heating = false;
+bool interrupted_by_timer = false;
+bool interrupted_by_button = false;
 
 
 void __interrupt() isr(void){
     if (PIR1bits.TMR1IF){
         PIR1bits.TMR1IF = 0;
+        interrupted_by_timer = true;
         timer_counter--;
-
-        if (timer_counter % 4 == 0){    //* Mostrar a temperatura e o tempo restante apenas a cada segundo
-            show_temp_and_time();
-        }
-        if (timer_counter == 0){
-            end_heating();
-        }
     }
 
     if (INTCONbits.INTF){
         INTCONbits.INTF = 0;
         T1CONbits.TMR1ON = 0;
-
-        change_pwm_duty_cycle(0);
-        set_cursor(2, 8);
-        write_string(" Parado! ");
-
-        unsigned char button_pressed = scan_keypad();
-        switch (button_pressed){
-            case ENTER_BUTTON:
-                T1CONbits.TMR1ON = 1;
-                set_heating(chosen_temperature);
-                break;
-            case CANCEL_BUTTON:
-                heating_was_cancelled = true;
-                break;
-            default:
-                break;
-        }
+        interrupted_by_button = true;
     }
 }
 
@@ -72,6 +52,35 @@ void main(void) {
 
         while (is_heating){
             adjust_pwm_duty_cycle(chosen_temperature);
+
+            if (interrupted_by_timer){
+                if (timer_counter % 4 == 0){    //* Mostrar a temperatura e o tempo restante apenas a cada segundo
+                show_temp_and_time();
+                }
+                if (timer_counter == 0){
+                end_heating();
+                }
+            }
+
+            if (interrupted_by_button){
+                change_pwm_duty_cycle(0);
+                set_cursor(2, 8);
+                write_string(" Parado! ");
+
+                unsigned char button_pressed = scan_keypad();
+                switch (button_pressed){
+                    case ENTER_BUTTON:
+                        T1CONbits.TMR1ON = 1;
+                        set_heating(chosen_temperature);
+                        break;
+                    case CANCEL_BUTTON:
+                        heating_was_cancelled = true;
+                        break;
+                    default:
+                        break;
+        }
+            }
+
             if (heating_was_cancelled){
                 end_heating();
             }
@@ -235,8 +244,11 @@ void show_temp_and_time(void){
 
 void end_heating(void){
     is_heating = false;
+    interrupted_by_timer = false;
+    interrupted_by_button = false;
     PIE1bits.TMR1IE = 0;
     INTCONbits.INTE = 0;
+    
     change_pwm_duty_cycle(0);
     turn_off_fan();
     clear_lcd();
