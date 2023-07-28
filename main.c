@@ -26,7 +26,9 @@ void __interrupt() isr(void){
     if (PIR1bits.TMR1IF){
         PIR1bits.TMR1IF = 0;
         interrupted_by_timer = true;
-        timer_counter--;
+        if (timer_counter > 0){
+            timer_counter--;
+        }
     }
 
     if (INTCONbits.INTF){
@@ -46,7 +48,9 @@ void main(void) {
         set_heating(chosen_temperature);
         set_timer(chosen_time);
 
+        heating_was_cancelled = false;
         is_heating = true;
+        
         INTCONbits.INTE = 1;
         INTCONbits.GIE = 1;
 
@@ -54,33 +58,11 @@ void main(void) {
             adjust_pwm_duty_cycle(chosen_temperature);
 
             if (interrupted_by_timer){
-                if (timer_counter % 4 == 0){    //* Mostrar a temperatura e o tempo restante apenas a cada segundo
-                show_temp_and_time();
-                }
-                if (timer_counter == 0){
-                end_heating();
-                }
+                handle_timer_interrupt();
             }
-
             if (interrupted_by_button){
-                change_pwm_duty_cycle(0);
-                set_cursor(2, 8);
-                write_string(" Parado! ");
-
-                unsigned char button_pressed = scan_keypad();
-                switch (button_pressed){
-                    case ENTER_BUTTON:
-                        T1CONbits.TMR1ON = 1;
-                        set_heating(chosen_temperature);
-                        break;
-                    case CANCEL_BUTTON:
-                        heating_was_cancelled = true;
-                        break;
-                    default:
-                        break;
-        }
+                handle_button_interrupt();
             }
-
             if (heating_was_cancelled){
                 end_heating();
             }
@@ -97,6 +79,36 @@ void initial_setup(void){
     OPTION_REGbits.INTEDG = 0;      //* Interrupção na borda de descida
     TRISCbits.TRISC2 = 0;           //* RC2 como saída para o buzzer
     PORTCbits.RC2 = 0;
+}
+
+void handle_timer_interrupt(void){
+    if (timer_counter % 4 == 0){    //* Mostrar a temperatura e o tempo restante apenas a cada segundo
+        show_temp_and_time();
+    }
+    if (timer_counter == 0){
+        end_heating();
+    }
+    interrupted_by_timer = false;
+}
+
+void handle_button_interrupt(void){
+    change_pwm_duty_cycle(0);
+    set_cursor(2, 8);
+    write_string(" Parado! ");
+
+    unsigned char button_pressed = scan_keypad();
+    switch (button_pressed){
+        case ENTER_BUTTON:
+            T1CONbits.TMR1ON = 1;
+            set_heating(chosen_temperature);
+            break;
+        case CANCEL_BUTTON:
+            heating_was_cancelled = true;
+            break;
+        default:
+            break;
+    }
+    interrupted_by_button = false;
 }
 
 unsigned char* get_aimed_temperature(void){
