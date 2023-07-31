@@ -93,6 +93,7 @@ void handle_timer_interrupt(void){
 
 void handle_button_interrupt(void){
     change_pwm_duty_cycle(0);
+    turn_off_fan();
     set_cursor(2, 8);
     write_string(" Parado! ");
 
