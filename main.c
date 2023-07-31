@@ -76,9 +76,10 @@ void initial_setup(void){
     keypad_init();
     ad_init();
     pwm_init();
-    OPTION_REGbits.INTEDG = 0;      //* Interrupção na borda de descida
-    TRISCbits.TRISC2 = 0;           //* RC2 como saída para o buzzer
-    PORTCbits.RC2 = 0;
+
+    OPTION_REGbits.INTEDG = 0;      //* Interrupção de RB0/INT0 na borda de descida
+    TRISCbits.TRISC2 = 0;           //* RC2 como saída (para a ventoinha)
+    PORTCbits.RC2 = 0;              //* Ventoinha inicialmente desligada
 }
 
 void handle_timer_interrupt(void){

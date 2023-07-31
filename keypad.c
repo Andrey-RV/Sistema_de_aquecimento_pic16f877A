@@ -4,8 +4,8 @@
 
 
 void keypad_init(void){
-    OPTION_REGbits.nRBPU = 0;           //* Pull-ups habilitados para comparação linha/coluna das teclas do teclado
-    TRISB = 0b11110011;
+    OPTION_REGbits.nRBPU = 0;           //* Pull-ups internos habilitados
+    TRISB = 0b11110011;                 //* RB3:RB2 como saída, restante como entrada
     return;
 }
 
@@ -15,14 +15,14 @@ unsigned char scan_keypad(void){
         row2 = 1;
 
         if (PORTBbits.RB4 == 0){
-            __delay_ms(150);
+            __delay_ms(150);            //* Debounce
             if (PORTBbits.RB4 == 0){
                 return INCREASE_BUTTON;
         }
         }
 
-        if (PORTBbits.RB5 == 0){
-            __delay_ms(150);
+        if (PORTBbits.RB5 == 0){        
+            __delay_ms(150);            //* Debounce
             if (PORTBbits.RB5 == 0){
                 return DECREASE_BUTTON;
         }
@@ -32,14 +32,14 @@ unsigned char scan_keypad(void){
         row2 = 0;
 
         if (PORTBbits.RB4 == 0){
-            __delay_ms(150);
+            __delay_ms(150);            //* Debounce
             if (PORTBbits.RB4 == 0){
                 return ENTER_BUTTON;
         }
         }
 
         if (PORTBbits.RB5 == 0){
-            __delay_ms(150);
+            __delay_ms(150);            //* Debounce
             if (PORTBbits.RB5 == 0){
                 return CANCEL_BUTTON;
         }

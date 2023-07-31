@@ -7,11 +7,11 @@
 
 
 void pwm_init(void) {
-    TRISCbits.TRISC1 = 0;
+    TRISCbits.TRISC1 = 0;            //* RC1 como saída
     CCP2CONbits.CCP2M = 0b1100;      //* Modo PWM
-    CCPR2L = 0b00000000;             //* Duty cycle do PWM = CCPR2L:CCP2X:CCP2Y
+    CCPR2L = 0b00000000;
     CCP2CONbits.CCP2X = 0;
-    CCP2CONbits.CCP2Y = 0;
+    CCP2CONbits.CCP2Y = 0;           //* Duty cycle do PWM (CCPR2L:CCP2X:CCP2Y) = 0
 
     PR2 = 199;                       //* Frequência de 2.5kHz para um oscilador de 8MHz 
     T2CON = 0b00000101;              //* Prescaler de 4 para o timer 2
@@ -35,7 +35,7 @@ void adjust_pwm_duty_cycle(char* temperature){
 
 void change_pwm_duty_cycle(unsigned int percentage) {
     switch (percentage){
-        case 100:
+        case 100:                   //* Não exatamente 100% pois CCP2X e CCP2Y são deixados em 0
             CCPR2L = 0b11001000;
             CCP2CONbits.CCP2X = 0;
             CCP2CONbits.CCP2Y = 0;
