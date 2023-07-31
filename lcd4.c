@@ -5,7 +5,7 @@
 
 void write_on_lcd_bus(unsigned char a)
 {
-    data_bus = a << 4;
+    data_bus = a << 4;        //* Os pinos conectados ao barramento de dados do LCD são os 4 mais significativos de data_bus
 }
 
 void send_lcd_command(unsigned char a){
@@ -27,10 +27,10 @@ void send_data(unsigned char a){
 }
 
 void initialize_lcd(void){
-    TRISD = 0x00;
-    TRISE = 0x00;
-    ADCON1 = 0x06;
-    PORTD = 0x00;
+    data_bus_direction = 0x00;            //* Barramento de dados como saída
+    control_bus_direction = 0x00;         //* Barramento de controle como saída
+    ADCON1 = 0x06;              //* Todos os pinos como digitais
+    data_bus = 0x00;            //* Inicializa o barramento de dados com 0
 
     __delay_ms(20);
     send_lcd_command(0x02);     //* Comando de modo 4 bits
