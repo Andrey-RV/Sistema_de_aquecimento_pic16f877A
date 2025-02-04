@@ -5,7 +5,7 @@ no curso de Engenharia Elétrica.
 
 ## 📋 Visão Geral
 Controlador de temperatura baseado no microcontrolador PIC16F877A com:
-- Seleção de temperatura (30°C a 70°C)
+- Seleção de temperatura (30°C a 70°C) em passos de 4°C
 - Configuração de tempo de aquecimento (30s a 5min)
 - Interface gráfica via LCD 16x2
 - Controle do elemento de aquecimento via PWM e ventoinhas
@@ -18,7 +18,7 @@ Controlador de temperatura baseado no microcontrolador PIC16F877A com:
 
 - **Controle Preciso**
   - Leitura de temperatura via sensor analógico
-  - Regulação PWM (2.5kHz)
+  - Regulação PWM
   - Sistema de ventilação auxiliar
 
 - **Segurança**
@@ -27,15 +27,14 @@ Controlador de temperatura baseado no microcontrolador PIC16F877A com:
   - Indicador sonoro (buzzer)
 
 ## 🛠 Hardware Utilizado
-| Componente              | Especificações                 |
+| Principais componentes  | Especificações                 |
 |-------------------------|--------------------------------|
 | Microcontrolador        | PIC16F877A                     |
 | Display                 | LCD 16x2 (modo 4 bits)         |
 | Teclado                 | Matricial 2x2                  |
 | Sensor de Temperatura   | LM35                           |
-| Fonte                   | 5V DC                          |
 | Elemento de aquecimento | Resistor de potência 10W       |
-| Ventoinha               | 5V DC                          |
+| Ventoinha               | 5V DC com ajuste via PWM       |
 
 ## Exemplo no proteus
 ![Esquemático](https://i.imgur.com/CwWsg3h.jpeg)
