@@ -36,3 +36,7 @@ Controlador de temperatura baseado no microcontrolador PIC16F877A com:
 | Fonte                   | 5V DC                          |
 | Elemento de aquecimento | Resistor de potência 10W       |
 | Ventoinha               | 5V DC                          |
+
+## Exemplo no proteus
+![Esquemático](https://i.imgur.com/CwWsg3h.jpeg)
+![LCD](https://i.imgur.com/IoVYlzo.png)
